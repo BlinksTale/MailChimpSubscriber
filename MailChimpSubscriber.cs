@@ -12,6 +12,7 @@ using System.Text;
 using System.Net.Mail;
 using JetBrains.Annotations;
 using UnityEngine.Networking;
+using TMPro;
 
 
 namespace Fiftytwo
@@ -19,6 +20,7 @@ namespace Fiftytwo
     [PublicAPI]
     public class MailChimpSubscriber : MonoBehaviour
     {
+        private const string ZeroWidthSpace = "\u200B"; // was often found at end of our emails
         private const string UrlFormat = "https://{0}.api.mailchimp.com/3.0/lists/{1}/members";
         private const string JsonFormat = "{{\"email_address\":\"{0}\", \"status\":\"subscribed\"}}";
 
@@ -27,10 +29,16 @@ namespace Fiftytwo
 
         [SerializeField] private string _apiKey = string.Empty;
         [SerializeField] private string _listId = string.Empty;
-
+        [SerializeField] private TMP_Text tmpText;
 
         public void Subscribe ()
         {
+            if (tmpText != null)
+            {
+                Subscribe(tmpText.text.Replace(ZeroWidthSpace, "")); // TMP input seems to hang onto these
+                return;
+            }
+
             var text = GetComponent<Text>();
 
             if( text == null )
